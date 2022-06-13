@@ -1,0 +1,220 @@
+<template>
+  <!--导航栏页-->
+  <div class="pop_submit" v-if="showSubmitPop">
+      <div class="pop">
+        <div class="close" @click="hidePop">
+          <img class="img" :src="require('../../assets/icon_close_submit.png')" />
+        </div>
+        <el-row class="title">
+          <el-col  >为了我们能更好地服务您，请您填写以下信息</el-col>
+        </el-row>
+        <div class="pop_form">
+          <div class="form_row">
+            <div class="name"><span>*</span>公司名称:</div>
+            <div class="content_input"><el-input v-model="form.name" placeholder="请填写公司名称"></el-input></div>
+          </div>
+          <div class="form_row">
+            <div class="name"><span>*</span>联 系 人:</div>
+            <div class="content_input"><el-input v-model="form.link" placeholder="请填写您的姓名"></el-input></div>
+          </div>
+          <div class="form_row">
+            <div class="name"><span>*</span>联系电话:</div>
+            <div class="content_input"><el-input v-model="form.phone" placeholder="请填写您的联系电话"></el-input></div>
+          </div>
+          <div class="form_row">
+            <div class="name"><span>*</span>电子邮箱:</div>
+            <div class="content_input"><el-input v-model="form.email" placeholder="请填写您的电子邮箱"></el-input></div>
+          </div>
+
+        </div>
+        <el-row class="footer">
+          <el-col :span="24">
+            <el-button type="primary" style="width: 80%;height:50px;font-size:22px;" @click="xhr_submit">马上体验</el-button>
+          </el-col>
+        </el-row>
+      </div>
+  </div>
+</template>
+
+<script>
+  import constant from '@/constant/constant.js';
+  export default {
+    name: "PopSubmit",
+    data(){
+      return{
+        showSubmitPop: false,
+        // isCollapse:true
+        form: {
+          name: '',
+          phone: '',
+          link: '',
+          email: ''
+        }
+      }
+    },
+    computed:{
+      constant() {
+        return constant;
+      }
+    },
+    mounted(){
+      this.$root.$on('showPopSubmit', (index) => {
+       this.showSubmitPop = true;
+      });
+    },
+    methods: {
+      hidePop(){
+        this.showSubmitPop = false;
+      },
+      xhr_submit() {
+        // 校验表单
+        if(!this.form.name || !this.form.phone || !this.form.link || !this.form.email) {
+          this.$root.$emit('showSubmitResultPop', '表单内容不能为空,请填写完整后再进行提交！');
+          return;
+        }
+        // 提交信息
+        this.$axios.post('/api/wCustomerSeek/save', {
+          organName: this.form.name,
+          phone: this.form.phone,
+          link: this.form.link,
+          email: this.form.email,
+        }).then(res => {
+          if (res.data.code = 200) {
+            // 关闭当前弹窗
+            this.showSubmitPop = false;
+            // 弹窗提交成功弹窗
+            this.$root.$emit('showSubmitResultPop');
+          }
+          else {
+            this.$root.$emit('showSubmitResultPop', '网络异常，请稍后再试！');
+          }
+        }).catch((error) => {
+          console.error(error);
+          this.$root.$emit('showSubmitResultPop', '网络异常，请稍后再试！');
+        });
+      }
+    }
+  }
+</script>
+
+<style scoped lang="scss">
+  .pop_submit {
+    background:rgba(0,0,0,0.7);
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .pop{
+      background-color: white;
+      width: 520px;
+      height: 600px;
+      border-radius: 5px;
+      opacity: 1!important;
+      position: relative;
+
+      .close{
+        display: block;
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        // background-color:#fff;
+        // border-radius:50%;
+        top: -25px;
+        left: 94%;
+        text-align: center;
+        line-height: 65px;
+        font-size: 22px;
+        color: rgb(60,60,60);
+        img{
+          display: block;
+          max-width: 100%;
+          position: absolute;
+          left: 0;
+          top: 0;
+        }
+        span{
+          font-size: 20px;
+        }
+      }
+      .title {
+        margin-top:10px;
+        text-align:center;
+        font-size: 18px;
+        height: 70px;
+        line-height: 80px;
+      }
+      .pop_form {
+        padding:0 auto;
+        margin:0 auto;
+        height: 400px;
+        width: 80%;
+        border: 1px solid #000;
+        border-radius: 5px;
+        .form_row {
+          height: 68px;
+          display: flex;
+          width: 80%;
+          border-bottom: 1px solid #2b2b2b;
+          margin:22px auto;
+          .name {
+            text-align: left;
+            width: 120px;
+            font-size: 16px;
+            padding-top: 30px;
+            span {
+              color: red;
+              vertical-align: sub;
+              padding-right: 5px;
+            }
+          }
+          .content_input {
+            padding-top: 18px;
+            font-size: 18px;
+          }
+        }
+      }
+      .footer {
+        position: relative;
+        text-align: center;
+      }
+    }
+  }
+  >>>.el-input__inner {
+      border: 0px;
+      font-size: 16px;
+
+  }
+@media (max-width: 768px){
+  .pop{
+    margin-right: 30px;
+    margin-left: 30px;
+    height: 570px!important;
+  }
+  .pop_form{
+    height: 350px!important;
+    margin-bottom: 10px!important;
+  }
+  .form_row{
+    height: 58px!important;
+  }
+  .close{
+    left: 89%!important;
+  }
+  .title {
+    font-size: 14px!important;
+  }
+   .name{
+     font-size: 13px!important;
+   }
+   >>>.el-input__inner {
+      border: 0px;
+      font-size: 12px!important;
+
+  }
+}
+</style>
